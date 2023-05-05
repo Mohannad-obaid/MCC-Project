@@ -10,7 +10,6 @@ class PostModel {
   late Timestamp createdAt ;
 
   PostModel(
-<<<<<<< HEAD
      this.id,
      this.title,
      this.body,
@@ -41,9 +40,10 @@ class PostModel {
      data['userId'] = userId;
      data['image'] = image;
      data['category'] = category;
-      data['createdAt'] = createdAt;
+     data['createdAt'] = createdAt;
      return data;
-
+   }
+   /*
 =======
     this.id,
     this.title,
@@ -52,6 +52,7 @@ class PostModel {
     this.image,
     this.category,
   );
+*/
 
   PostModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -61,7 +62,7 @@ class PostModel {
     image = json['image'];
     category = json['category'];
   }
-
+/*
   Map<String, dynamic> toMap() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = this.id;
@@ -80,4 +81,6 @@ class PostModel {
     // };
 >>>>>>> e6289d499ba0d18669e16fe4aaba0ee706ea5b4d
   }
+
+    */
 }

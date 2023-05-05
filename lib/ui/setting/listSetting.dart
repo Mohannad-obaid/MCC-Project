@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:palliative_care/controller/profileController.dart';
 
 class listPage extends StatelessWidget {
   @override
@@ -29,9 +30,10 @@ class listPage extends StatelessWidget {
             ListTile(
               leading: Icon(Icons.exit_to_app),
               title: Text('تسجيل الخروج'),
-              onTap: () {
+              onTap: () async {
                 // navigate to login page
-                Navigator.pushNamed(context, '/login');
+               await ProfileController().signOut();
+                Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
               },
             ),
           ],
