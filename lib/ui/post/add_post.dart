@@ -1,16 +1,17 @@
-import 'dart:io';
+// ignore_for_file: avoid_print
 
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:image_picker/image_picker.dart';
-import '../Model/postModel.dart';
-import '../controller/add_post_controller.dart';
-import '../utils/helpers.dart';
+import 'package:palliative_care/Firebase/auth_firebase.dart';
+import '../../Model/postModel.dart';
+import '../../controller/add_post_controller.dart';
+import '../../controller/sharedPreferences_Controller.dart';
+import '../../utils/helpers.dart';
 
 class AddPost extends StatefulWidget {
   const AddPost({Key? key}) : super(key: key);
@@ -20,173 +21,156 @@ class AddPost extends StatefulWidget {
 }
 
 class _AddPostState extends State<AddPost> with Helpers {
-  PostController _postController = Get.put(PostController());
+  final PostController _postController = Get.put(PostController());
 
   @override
   Widget build(BuildContext context) {
     return
-      FutureBuilder(
-          future: _postController.getCurrentUser(),
-          builder:(BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-            if (snapshot.hasError) {
-              return const Text("حدث خطأ ما");
-            }
+      Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(
+                height: 20,
+              ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading:CircleAvatar (
+                  backgroundImage:
+                  NetworkImage('${SpHelper.getImage()}'),
+                  radius: 30,
 
-            if (!snapshot.hasData) {
-              return const Text("لا يوجد بيانات");
-            }
-
-            if (snapshot.connectionState == ConnectionState.done) {
-              return Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.max,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        leading: Image.network(
-                          snapshot.data['image'],
-                          width: 50,
-                          height: 50,
-                          fit: BoxFit.cover,
-                        ),
-                        title: Text(
-                          snapshot.data['name'],
-                          style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-                        ),
-                        subtitle: Text(
-                          snapshot.data['specialty'],
-                          style:
-                          TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Card(
-                        elevation: 2,
-                        child: Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: TextFormField(
-                                controller: _postController.title,
-                                maxLines: 1,
-                                decoration: const InputDecoration(
-                                  hintText: 'العنوان',
-                                  hintStyle: TextStyle(fontSize: 20),
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: TextFormField(
-                                controller: _postController.subject,
-                                maxLines: 10,
-                                decoration: const InputDecoration(
-                                  border: InputBorder.none,
-                                  hintText: 'بم تفكر؟',
-                                  hintStyle: TextStyle(fontSize: 20),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      _pickedFile != null
-                          ? Image.file(
-                        File(_pickedFile!.path),
-                        fit: BoxFit.cover,
-                      )
-                          : Container(),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            ElevatedButton(
-                              onPressed: () async {
-                                await pickImage();
-                              },
-                              child: Image.asset(
-                                'images/icons/picture.png',
-                                width: 30,
-                                height: 30,
-                              ),
-                            ),
-                            const Text('Category: '),
-                            Center(
-                              child: StreamBuilder<QuerySnapshot>(
-                                stream: FirebaseFirestore.instance.collection('category').snapshots(),
-                                builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                                  if (!snapshot.hasData) {
-                                    return const CircularProgressIndicator();
-                                  }
-
-                                  List<DropdownMenuItem<String>> items = snapshot
-                                      .data!.docs
-                                      .map((document) =>
-                                      DropdownMenuItem<String>(
-                                        value: document.id,
-                                        child: Text(document['name']),
-                                      ))
-                                      .toList();
-
-                                  return DropdownButton<String>(
-                                    borderRadius: BorderRadius.circular(10),
-                                    elevation: 16,
-                                    //  isExpanded: true,
-                                    hint: const Text('Select Category'),
-                                    value: _postController.selectedItem,
-                                    onChanged: (String? newValue) {
-                                      setState(() {
-                                        _postController.selectedItem = newValue!;
-                                      });
-                                    },
-                                    items: items,
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 40,
-                      ),
-                      Align(
-                        alignment: Alignment.center,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            if (_postController.title.text.isNotEmpty && _postController.subject.text.isNotEmpty && _pickedFile != null) {
-                                   uoloadImage();
-                              } else {
-                              showSnackBar(context: context, content: 'الرجاء التاكد من ادخال المعلومات كاملة', error: true);
-                            }
-                          },
-                          child: const Text('Post'),
-                        ),
-                      ),
-                    ],
-                  ),
                 ),
-              );
-            }
+                title: Text(
+                  ' ${SpHelper.getName()!}',
+                  style:
+                  const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                ),
+                subtitle: Text(
+                  ' ${SpHelper.getSpecialty()}',
+                  style:
+                  const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                ),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              Card(
+                elevation: 2,
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TextFormField(
+                        controller: _postController.title,
+                        maxLines: 1,
+                        decoration: const InputDecoration(
+                          hintText: 'العنوان',
+                          hintStyle: TextStyle(fontSize: 20),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TextFormField(
+                        controller: _postController.subject,
+                        maxLines: 10,
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          hintText: 'بم تفكر؟',
+                          hintStyle: TextStyle(fontSize: 20),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              _pickedFile != null
+                  ? Image.file(
+                File(_pickedFile!.path),
+                fit: BoxFit.cover,
+              )
+                  : Container(),
+              Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () async {
+                        await pickImage();
+                      },
+                      child: Image.asset(
+                        'images/icons/picture.png',
+                        width: 30,
+                        height: 30,
+                      ),
+                    ),
+                    const Text('Category: '),
+                    Center(
+                      child: StreamBuilder<QuerySnapshot>(
+                        stream: FirebaseFirestore.instance.collection('category').snapshots(),
+                        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                          if (!snapshot.hasData) {
+                            return const CircularProgressIndicator();
+                          }
 
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
+                          List<DropdownMenuItem<String>> items = snapshot
+                              .data!.docs
+                              .map((document) =>
+                              DropdownMenuItem<String>(
+                                value: document.id,
+                                child: Text(document['name']),
+                              ))
+                              .toList();
+
+                          return DropdownButton<String>(
+                            borderRadius: BorderRadius.circular(10),
+                            elevation: 16,
+                            //  isExpanded: true,
+                            hint: const Text('Select Category'),
+                            value: _postController.selectedItem,
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                _postController.selectedItem = newValue!;
+                              });
+                            },
+                            items: items,
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(
+                height: 40,
+              ),
+              Align(
+                alignment: Alignment.center,
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (_postController.title.text.isNotEmpty && _postController.subject.text.isNotEmpty && _pickedFile != null) {
+                      uoloadImage();
+                    } else {
+                      showSnackBar(context: context, content: 'الرجاء التاكد من ادخال المعلومات كاملة', error: true);
+                    }
+                  },
+                  child: const Text('Post'),
+                ),
+              ),
+            ],
+          ),
+        ),
       );
+
+
           }
 
 
@@ -207,7 +191,6 @@ class _AddPostState extends State<AddPost> with Helpers {
       if (_pickedFile != null) {
         setState(() {
           _pickedFile = _pickedFile;
-
         });
       }
       return true;
@@ -245,33 +228,28 @@ class _AddPostState extends State<AddPost> with Helpers {
   void uploadImage({required File file, required void Function(bool state, TaskState status, String message)eventHandler}) {
     try {
       UploadTask uploadTask =
-      storageRef.child("image_1200").putFile(file);
-      PostModel postModell ;
+      storageRef.child("image_${FbAuthController().getUid}").putFile(file);
+      PostModel postModel;
       bool check;
-      _imageUrl =  uploadTask.snapshot.ref.getDownloadURL().then((value) async => {
-       postModell =  PostModel(
+      _imageUrl = uploadTask.snapshot.ref.getDownloadURL().then((value) async => {
+      postModel =  PostModel(
       id: '1',
       title: _postController.title.text,
       body: _postController.subject.text,
-      userId:   FirebaseAuth.instance.currentUser!.uid,
+      userId:   SpHelper.getId()!,
       createdAt: Timestamp.now(),
       category: _postController.selectedItem!,
       image: value,
-
       ),
-     check =   await _postController.createPost(postModell,),
-        if(check){
-          showSnackBar(
-              context: context,
-              content: 'تم اضافة المنشور بنجاح',
-              error: false),
-        }else{
-          showSnackBar(
-              context: context,
-              content: 'حدث خطأ ما',
-              error: true),
-        },
-
+        check =   await _postController.createPost(postModel,),
+      if(check){
+        _postController.title.clear(),
+        _postController.subject.clear(),
+        setState(() {
+          _pickedFile = null;
+        }),
+        _postController.selectedItem = null,
+      },
         print(value),
       } ).toString();
       setState(() async{
@@ -304,6 +282,7 @@ class _AddPostState extends State<AddPost> with Helpers {
             file: File(_pickedFile!.path),
             eventHandler: (status, TaskState state, message) {
               if (status) {
+                //upload successfully
                 changeIndicatorValue(1);
                 Get.showSnackbar(const GetSnackBar(
                   message: 'Pick image to uploada!',
@@ -329,6 +308,7 @@ class _AddPostState extends State<AddPost> with Helpers {
 
   void uoloadFile() async {
     if (_indicatorValue != null) {
+      // await  pickImage();
       try {
         uploadImage(
             file: file!,
@@ -358,3 +338,26 @@ class _AddPostState extends State<AddPost> with Helpers {
     });
   }
 }
+
+
+
+/*
+ postModel =  PostModel(
+          id: '1',
+          title: _postController.title.text,
+          body: _postController.subject.text,
+          userId:   SpHelper.getId()!,
+          createdAt: Timestamp.now(),
+          category: _postController.selectedItem!,
+          image: value,
+        );
+        check =   await _postController.createPost(postModel,);
+        if(check){
+          _postController.title.clear();
+          _postController.subject.clear();
+          setState(() {
+            _pickedFile = null;
+          });
+          _postController.selectedItem = null;
+        }
+ */

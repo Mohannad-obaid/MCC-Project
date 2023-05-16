@@ -1,106 +1,64 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:palliative_care/ui/categories/alternatvie_medicine.dart';
-import 'package:palliative_care/ui/categories/cancer.dart';
-import 'package:palliative_care/ui/categories/heart.dart';
-import 'package:palliative_care/ui/categories/mentalHealth.dart';
-import 'package:palliative_care/ui/categories/pysical_health.dart';
-import 'package:palliative_care/ui/categories/sokari.dart';
-
+import 'package:get/get_core/src/get_main.dart';
+import '../../controller/catController.dart';
 import '../../widgets/category_box.dart';
 
-class Categories extends StatelessWidget {
-  const Categories({Key? key}) : super(key: key);
+class Categories extends StatefulWidget {
+   Categories({Key? key}) : super(key: key);
+
+  @override
+  State<Categories> createState() => _CategoriesState();
+}
+
+class _CategoriesState extends State<Categories> {
+  CategoryController categoryController = Get.put(CategoryController());
 
   @override
   Widget build(BuildContext context) {
-    return  SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(
-                height: 599,
-                child: GridView(
-                  scrollDirection: Axis.vertical,
-                  // itemCount: 1,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 20,
-                      mainAxisSpacing: 15),
-                  children:  [
+    return  StreamBuilder<QuerySnapshot>(
+      stream: categoryController.fetchCategory(),
+        builder:(BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+          if (snapshot.hasError) {
+            return Text("Something went wrong");
+          }
 
-                    /// TO DO => use InkWell for make it clickable
-/*'      /heartScreen':(context) => const HeartScreen(),
-        '/sokariScreen':(context) => const SokariScreen(),
-        '/pycsicalScreen':(context) => const PysicalHealth(),
-        '/alternativScreen':(context) => const AlternativeScreen(),
-        '/mentalScreen':(context) => const MentalHealth(),
-        '/cancerScreen':(context) => const CancerScreen(*/
-                    InkWell(
-                      onTap: (){
-                        Get.to(const HeartScreen());
-                      },
-                      child: const CategotyBox(
-                        imageName: 'images/heart.jpeg',
-                        categoryName: 'القلب',
-                      ),
+          if (!snapshot.hasData  ) {
+            return Text("Document does not exist");
+          }
 
-                    ),
-                    InkWell(
-                      onTap: (){
-                        Get.to(const SokariScreen());
-                      },
-                      child: const CategotyBox(
-                        imageName: 'images/sokari.jpg',
-                        categoryName: 'السكري',
-                      ),
-                    ),
-                    InkWell(
-                      onTap: (){
-                        Get.to(const PysicalHealth());
-                      },
-                      child: const CategotyBox(
-                        imageName: 'images/fitness.jpg',
-                        categoryName: 'الصحة البدنية',
-                      ),
-                    ),
-                    InkWell(
-                      onTap: (){
-                        Get.to(const AlternativeScreen());
-                      },
-                      child: const CategotyBox(
-                        imageName: 'images/green.jpg',
-                        categoryName: 'الطب البديل',
-                      ),
-                    ),
-                    InkWell(
-                      onTap: (){
-                        Get.to(const CancerScreen());
-                      },
-                      child: const CategotyBox(
-                        imageName: 'images/cancer.jpg',
-                        categoryName: 'السرطان',
-                      ),
-                    ),
-                    InkWell(
-                      onTap: (){
-                        Get.to(const MentalHealth());
-                      },
-                      child: const CategotyBox(
-                        imageName: 'images/mind.jpeg',
-                        categoryName: 'الصحة النفسية',
-                      ),
-                    ),
-                  ],
-                ),
+          if (snapshot.connectionState == ConnectionState.done) {
+
+          return Center(child: const CircularProgressIndicator());
+          }
+
+          return  Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: GridView.builder(
+              itemCount: snapshot.data!.docs.length,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 20,
+                  mainAxisSpacing: 15
               ),
-            ],
-          ),
-        ),
-
+              itemBuilder: (BuildContext context, int index) {
+                return InkWell(
+                    onTap: (){
+                        var ar = [snapshot.data!.docs[index].id,snapshot.data!.docs[index]['name']];
+                        Navigator.pushNamed(context, '/sokariScreen', arguments: ar);
+                    },
+                    child: CategotyBox(
+                      categoryName: snapshot.data!.docs[index]['name'],
+                      imageName: snapshot.data!.docs[index]['image'],
+                    )
+                );
+              },
+            ),
+          );
+    }
     );
   }
 }
+
+

@@ -1,11 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../Model/commentModel.dart';
-import '../Model/likeModel.dart';
-import '../controller/APController.dart';
-import '../widgets/commentForm.dart';
-import '../widgets/readMore.dart';
+import 'package:palliative_care/Firebase/auth_firebase.dart';
+import 'package:palliative_care/ui/post/singlePost_page.dart';
+import '../../Model/commentModel.dart';
+import '../../Model/likeModel.dart';
+import '../../controller/homeController.dart';
+import '../../controller/sharedPreferences_Controller.dart';
+import '../../widgets/commentForm.dart';
+import '../../widgets/readMore.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -16,7 +19,16 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  FbGetPostController controller = Get.put(FbGetPostController());
+  HomeController controller = Get.put(HomeController());
+
+  List<CommentModel>? comments;
+
+  getComment(String idPost) async {
+    comments = await controller.getComment01(idPost);
+
+
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,13 +41,9 @@ class _HomeScreenState extends State<HomeScreen> {
             return ListView.builder(
                 itemCount: snapshot.data!.docs.length,
                 itemBuilder: (context, index) {
-                  controller.getPostAuth(id: snapshot.data!.docs[index]['userId']);
-                  controller.checkIsLikePost(
-                      LikeModel(
-                          postId: snapshot.data!.docs[index]['id'],
-                          userId: snapshot.data!.docs[index]['userId']
-                      )
-                  );
+                  controller.getLike(snapshot.data!.docs[index]['id']);
+                  controller.getComment01(snapshot.data!.docs[index]['id']);
+                  controller.getComment011(snapshot.data!.docs[index]['id']);
                   return Column(
                     children: [
                       const SizedBox(height: 10),
@@ -53,11 +61,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           mainAxisSize: MainAxisSize.max,
                           children: [
                             StreamBuilder(
-                                stream: FirebaseFirestore.instance
-                                    .collection('doctor').doc(snapshot.data!.docs[index]['userId']).snapshots(),
+                                stream: FirebaseFirestore.instance.collection('doctor').doc(snapshot.data!.docs[index]['userId']).snapshots(),
                                 builder: (context, snapshot2) {
-                                  if (snapshot2.connectionState ==
-                                      ConnectionState.waiting) {
+                                  if (snapshot2.connectionState == ConnectionState.waiting) {
                                     return const Center(
                                         child: CircularProgressIndicator());
                                   } else {
@@ -113,30 +119,37 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Row(
                                   children: [
                                     IconButton(
-                                      onPressed: () {
+                                      onPressed: () async {
                                         LikeModel likeModel = LikeModel(
                                             postId: snapshot.data!.docs[index]['id'],
-                                            userId: snapshot.data!.docs[index]['userId']
+                                            userId: FbAuthController().getUid
                                         );
-                                        controller.addLikePost(likeModel);
+                                       controller.addLike(likeModel);
                                       },
-                                      icon: Obx(() {
-
-                                        bool isLikeds = controller.isLike.value;
-                                        return Icon(
+                                      icon:
+                                         const Icon(
                                           Icons.favorite,
-                                          color: isLikeds ? Colors.red : Colors.grey,
-                                        );
-                                      }),
-                                    ),
+                                          color: Colors.grey,
+                                        )
 
-                                    Text(
-                                      //snapshot.data!.size.toString(),
-                                      "",
+                                    ),
+                                    Obx(() {
+                                      if(controller.postLike.isEmpty ){
+                                        return Text('0 Likes');
+                                      }else{
+                                        return
+                                        Text(
+                                            'Likes ${controller.postLike.length ?? 0 }  ' ,
                                       style: const TextStyle(
                                           fontWeight:
                                           FontWeight.bold),
-                                    ),
+                                    );
+
+                                    }
+    }
+                                          ),
+
+
                                   ],
                                 ),
                                 Row(
@@ -146,9 +159,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                       icon:
                                       const Icon(Icons.comment),
                                     ),
-                                    Text(
+                                    const Text(
                                       "",
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                           fontWeight:
                                           FontWeight.bold),
                                     ),
@@ -169,63 +182,64 @@ class _HomeScreenState extends State<HomeScreen> {
 
                             const SizedBox(height: 10),
                             CommentForm(
-                              onSubmit: (comment) {
+                              onSubmit: (comment) async {
                                 CommentModel commentModel = CommentModel(
-                                  postId: controller.posts[index].id,
-                                  userId: controller.posts[index].userId,
-                                  comment: comment,
-                                  timestamp: Timestamp.now(),
+                                    postId: snapshot.data!.docs[index]['id'],
+                                    userId:SpHelper.getId()!,
+                                    comment: comment,
+                                    timestamp: Timestamp.now()
+
                                 );
+                                    await  controller.addComment(commentModel);
                               },
                             ),
-                            /*
-                            Obx(() => controller.comments.isEmpty
-                                ? const Center(
-                                    child: CircularProgressIndicator())
-                                : SizedBox(
+                            SizedBox(
                                     width: double.infinity,
-                                    child: ListView.builder(
-                                      itemCount: controller.comments.length,
-                                      shrinkWrap: true,
-                                      itemBuilder: (context, index) {
-                                        controller.getCommentAuth(
-                                            id: controller.comments[index].userId);
-                                        return Obx(() => controller.user.isEmpty
-                                            ? const Center(
-                                                child:
-                                                    CircularProgressIndicator())
-                                            : ListTile(
-                                                leading: CircleAvatar(
-                                                  radius: 15,
-                                                  backgroundImage: NetworkImage(
-                                                      controller
-                                                          .user[index].image),
-                                                ),
-                                                title: Text(
-                                                    controller.user[index].name),
-                                                subtitle: Text(
-                                                    controller.comments[index]
-                                                        .comment),
-                                              ));
-                                      },
-                                    ),
-                                  )),
-
-                             */
-
+                                    child: Obx((){
+                                          if(controller.commentsList.isEmpty  || controller.userList.isEmpty ){
+                                            return const Center(child: CircularProgressIndicator());
+                                          }
+                                          List<CommentModel>  commentModel = [];
+                                            commentModel = controller.qsList[index].docs.map((e) => CommentModel.fromFirestore(e)).toList();
+                                            return ListView.builder(
+                                              itemCount: 1,
+                                              shrinkWrap: true,
+                                              itemBuilder: (context, indexx) {
+                                                return ListTile(
+                                                  leading: CircleAvatar(
+                                                    backgroundImage: NetworkImage(
+                                                        controller.userList[indexx].image ?? ''),
+                                                    radius: 30,
+                                                  ),
+                                                  title: Text(controller.userList[indexx].name ?? '') ,
+                                                  subtitle: Text(commentModel[indexx].comment),
+                                                );
+                                              }
+                                            );
+                                        }
+                                          )
+                                      ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 TextButton(
                                     onPressed: () {
-                                      Navigator.pushNamed(context, '/post');
+                                      controller.postId.value = snapshot.data!.docs[index]['id'];
+                                      controller.update();
+                                      Get.to(const PostDetails());
                                     },
                                     child: const Text('المزيد من التعليقات')),
                               ],
                             ),
+
+
+
+
                           ],
                         ),
                       ),
+
+
                     ],
                   );
                 });

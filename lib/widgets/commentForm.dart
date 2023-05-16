@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class CommentForm extends StatefulWidget {
   final Function(String) onSubmit;
 
-  const CommentForm({required this.onSubmit});
+  const CommentForm({super.key, required this.onSubmit});
 
   @override
   _CommentFormState createState() => _CommentFormState();
@@ -37,7 +37,7 @@ class _CommentFormState extends State<CommentForm> {
               controller: _commentController,
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return '!ادخل تعليقا';
+                 return 'الرجاء ادخال تعليق';
                 }
                 return null;
               },
@@ -62,7 +62,7 @@ class _CommentFormState extends State<CommentForm> {
                   borderRadius: BorderRadius.circular(15),
                 ),
               ),
-              child: Icon(Icons.send)
+              child: const Icon(Icons.send)
           ),
         ],
       ),

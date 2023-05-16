@@ -9,26 +9,31 @@ class PostModel {
   late String image;
   late Timestamp createdAt ;
 
+
+
   PostModel(
-     this.id,
-     this.title,
-     this.body,
-     this.userId,
-     this.image,
-     this.category,
-     this.createdAt,
+  {
+    required this.id,
+    required this.title,
+    required this.body,
+    required this.userId,
+    required this.image,
+    required this.category,
+    required this.createdAt,
+}
   );
 
   factory PostModel.fromSnapshot(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     return PostModel(
-      doc.id,
-      data['title'],
-      data['body'],
-      data['userId'],
-      data['image'],
-      data['category'],
-      data['createdAt']
+      id: doc.id,
+      title: data['title'],
+      body: data['body'],
+      userId: data['userId'],
+      image: data['image'],
+      category: data['category'],
+      createdAt: data['createdAt'],
+
     );
   }
 
@@ -41,18 +46,11 @@ class PostModel {
      data['image'] = image;
      data['category'] = category;
      data['createdAt'] = createdAt;
+     data['allText'] = '$title $body';
+
      return data;
    }
-   /*
-=======
-    this.id,
-    this.title,
-    this.body,
-    this.userId,
-    this.image,
-    this.category,
-  );
-*/
+
 
   PostModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -62,25 +60,5 @@ class PostModel {
     image = json['image'];
     category = json['category'];
   }
-/*
-  Map<String, dynamic> toMap() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['id'] = this.id;
-    data['title'] = this.title;
-    data['body'] = this.body;
-    data['userId'] = this.userId;
-    data['image'] = this.image;
-    data['category'] = this.category;
-    return data;
-    // return {
-    //   'id': id,
-    //   'title': title,
-    //   'body': body,
-    //   'userId': userId,
-    //   'image': image,
-    // };
->>>>>>> e6289d499ba0d18669e16fe4aaba0ee706ea5b4d
-  }
 
-    */
 }

@@ -1,11 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class DoctorModel {
-late int id;
+late String id;
 late String name;
 late String specialty;
 late String address;
 late String phoneNumber;
 late String image;
-late DateTime birthDate;
+late String email;
+late String birthDate;
 
 
 DoctorModel({
@@ -15,29 +18,45 @@ DoctorModel({
   required this.address,
   required this.phoneNumber,
   required this.image,
+  required this.email,
   required this.birthDate,
 });
 
-DoctorModel.fromJson(Map<String, dynamic> json) {
+DoctorModel.fromMap(Map<String, dynamic> json) {
   id = json['id'];
   name = json['name'];
   specialty = json['specialty'];
   address = json['address'];
   phoneNumber = json['phoneNumber'];
   image = json['image'];
-  birthDate = DateTime.parse(json['birthDate']);
+  birthDate = json['birthDate'];
 
+}
+
+factory DoctorModel.fromSnapshot(DocumentSnapshot doc) {
+  final data = doc.data()! as Map<String, dynamic>;
+  return DoctorModel(
+    id: doc.id,
+    name: data['name'],
+    email: data['email'],
+    image: data['image'],
+    phoneNumber: data['phone'],
+    address: data['address'],
+    birthDate: data['birthDate'],
+    specialty: data['specialty'],
+  );
 }
 
 Map<String, dynamic> toJson() {
   return {
     'id': id,
     'name': name,
-    'specialty': specialty,
-    'address': address,
-    'phoneNumber': phoneNumber,
+    'email': email,
     'image': image,
+    'phone': phoneNumber,
+    'address': address,
     'birthDate': birthDate,
+    'specialty': specialty,
   };
 }
 }

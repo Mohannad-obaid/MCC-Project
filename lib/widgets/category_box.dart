@@ -12,14 +12,14 @@ class CategotyBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 90,
+      height: 150,
       width: 90,
       decoration: const BoxDecoration(
       ),
       child: Stack(
         children: [
            Image(
-            image: AssetImage(imageName),
+            image: NetworkImage(imageName),
             fit: BoxFit.fill,
             height: double.infinity,
             width: double.infinity,
@@ -27,7 +27,7 @@ class CategotyBox extends StatelessWidget {
           Padding(
             padding:  EdgeInsets.only(top: 130),
             child: Container(
-              height: 50,
+              height: 100,
               width: double.infinity,
               color: Colors.green.shade400,
               child: Center(

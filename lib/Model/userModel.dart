@@ -25,7 +25,6 @@ class UserModel{
   });
 
   factory UserModel.fromSnapshot(DocumentSnapshot doc) {
-    if (doc.data() != null) {
       final data = doc.data()! as Map<String, dynamic>;
       return UserModel(
         id: doc.id,
@@ -38,15 +37,11 @@ class UserModel{
         interest: data['interest'],
         notification: data['notification'],
       );
-    } else {
-      throw Exception("Document data is null");
     }
 
 
-  }
-
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
     data['name'] = name;
     data['email'] = email;
@@ -57,5 +52,17 @@ class UserModel{
     data['interest'] = interest;
     data['notification'] = notification;
     return data;
+  }
+
+  UserModel.fromMap(Map<String, dynamic> json) {
+    id = json['id'];
+    name = json['name'];
+    email = json['email'];
+    image = json['image'];
+    phone = json['phone'];
+    address = json['address'];
+    birthDate = json['birthDate'];
+    interest = json['interest'];
+    notification = json['notification'];
   }
 }

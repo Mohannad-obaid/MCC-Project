@@ -1,12 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-import '../Firebase/fb_response.dart';
+import '../Firebase/auth_firebase.dart';
+import '../Firebase/firestore.dart';
 import '../Model/postModel.dart';
 
 
-class FbAuthControllerImp extends GetxController {
+class PostController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   String? selectedItem;
@@ -15,11 +16,13 @@ class FbAuthControllerImp extends GetxController {
   late TextEditingController title;
   late TextEditingController subject;
   late TextEditingController selectedCategory;
+  RxInt numImage = 0.obs;
 
 
   @override
   void onInit() {
     getData();
+    getCurrentUser();
     title = TextEditingController();
     subject = TextEditingController();
     selectedCategory = TextEditingController();
@@ -36,12 +39,37 @@ class FbAuthControllerImp extends GetxController {
     super.dispose();
   }
 
-  Future<FbResponse> create(PostModel post) async {
-    return await _firestore
-        .collection('Posts')
-        .add(post.toMap())
-        .then((value) => FbResponse(message: 'Success', success: true))
-        .catchError((error) => FbResponse(message: 'Failed', success: false));
+  Future<bool> createPost(PostModel post) async {
+    try {
+       await _firestore
+          .collection('Post')
+          .add(post.toMap())
+          .then((value) =>
+          FirebaseFirestore.instance
+              .collection('Post')
+              .doc(value.id)
+              .update({'id': value.id})
+      );
+
+       Get.showSnackbar(const GetSnackBar(
+         message: 'تم اضافة المنشور بنجاح',
+         duration: Duration(seconds: 2),
+         snackPosition: SnackPosition.BOTTOM,
+         backgroundColor: Colors.green,
+       ));
+
+       return true;
+    } catch (e) {
+      Get.showSnackbar(const GetSnackBar(
+        message: 'حدث خطأ ما',
+        duration: Duration(seconds: 2),
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+      ));
+      return false;
+
+    }
+
   }
 
   void getData() async {
@@ -50,6 +78,17 @@ class FbAuthControllerImp extends GetxController {
       print(data.data());
     }
   }
+
+  Future getCurrentUser() async {
+    String? id =  FbAuthController().getUser?.uid;
+    bool type = await  FirestoreController().getTypeUser(id!);
+    if(type){
+      return await _firestore.collection('doctor').doc(id).get();
+    }else{
+      return await _firestore.collection('users').doc(id).get();
+    }
+  }
+
 }
 
 

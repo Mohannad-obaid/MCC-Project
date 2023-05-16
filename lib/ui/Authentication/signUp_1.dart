@@ -14,6 +14,7 @@ class _SignUpState extends State<SignUp> {
   TextEditingController phoneNumberController = TextEditingController();
   TextEditingController addressController = TextEditingController();
   TextEditingController ageController = TextEditingController();
+  TextEditingController specialtyController = TextEditingController();
 
   GlobalKey<FormState> formKey = GlobalKey();
 
@@ -40,11 +41,14 @@ class _SignUpState extends State<SignUp> {
     phoneNumberController.dispose();
     addressController.dispose();
     ageController.dispose();
+    specialtyController.dispose();
 
   }
 
   @override
   Widget build(BuildContext context) {
+    String user = ModalRoute.of(context)!.settings.arguments.toString();
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.green.shade400,
@@ -52,27 +56,28 @@ class _SignUpState extends State<SignUp> {
       body: Form(
         key: formKey,
         child: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
           child: SingleChildScrollView(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.max,
               children: [
                 const Text(
-                  'A little about yourself',
+                  'ادخل بياناتك',
                   style: TextStyle(
-                    fontSize: 25.0,
+                    fontSize: 20.0,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(
-                  height: 30.0,
+                  height: 25.0,
                 ),
                 TextFormField(
                   controller: firstNameController,
                   onFieldSubmitted: (String value) {},
                   onChanged: (String value) {},
                   decoration: InputDecoration(
-                    labelText: 'First Name',
+                    labelText: 'الاسم الاول',
                     prefixIcon: const Icon(
                       Icons.supervised_user_circle,
                     ),
@@ -82,20 +87,20 @@ class _SignUpState extends State<SignUp> {
                   ),
                   validator: (String? value) {
                     if (value!.isEmpty) {
-                      return 'please enter your first name';
+                      return 'الرجاء ادخال الاسم الاول';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(
-                  height: 15.0,
+                  height: 10.0,
                 ),
                 TextFormField(
                   controller: secondNameController,
                   onFieldSubmitted: (String value) {},
                   onChanged: (String value) {},
                   decoration: InputDecoration(
-                    labelText: 'Sacend Name',
+                    labelText: 'الاسم الثاني',
                     prefixIcon: const Icon(
                       Icons.supervised_user_circle,
                     ),
@@ -105,13 +110,13 @@ class _SignUpState extends State<SignUp> {
                   ),
                   validator: (String? value) {
                     if (value!.isEmpty) {
-                      return 'please enter your second name';
+                      return 'الرجاء ادخال الاسم الثاني ';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(
-                  height: 15.0,
+                  height: 10.0,
                 ),
                 TextFormField(
                   controller: lastNameController,
@@ -119,7 +124,7 @@ class _SignUpState extends State<SignUp> {
                   onFieldSubmitted: (String value) {},
                   onChanged: (String value) {},
                   decoration: InputDecoration(
-                    labelText: 'Last Name',
+                    labelText: 'الاسم الاخير',
                     prefixIcon: const Icon(
                       Icons.supervised_user_circle,
                     ),
@@ -129,21 +134,55 @@ class _SignUpState extends State<SignUp> {
                   ),
                   validator: (String? value) {
                     if (value!.isEmpty) {
-                      return 'please enter your last name';
+                      return 'الرجاء ادخال الاسم الاخير';
                     }
                     return null;
                   },
                 ),
-                const SizedBox(
-                  height: 15.0,
+
+                 SizedBox(
+                  height: user == 'doctor' ? 10.0 : 0.0,
                 ),
+             user == 'doctor' ?
+             Column(
+               children: [
+                TextFormField(
+               controller: specialtyController,
+               keyboardType: TextInputType.text,
+               decoration: InputDecoration(
+                 labelText: 'التخصص',
+                 prefixIcon: const Icon(
+                   Icons.assignment_ind_outlined,
+                 ),
+                 border: OutlineInputBorder(
+                   borderRadius: BorderRadius.circular(15.0),
+                 ),
+               ),
+               validator: (String? value) {
+                 if (value!.isEmpty) {
+                   return 'الرجاء ادخال التخصص';
+                 }
+                 return null;
+               },
+             ),
+                 const SizedBox(
+                   height: 10.0,
+                 ),
+
+               ],
+             ) : const SizedBox(
+               height: 10.0,
+             ),
+
+
+
                 TextFormField(
                   controller: phoneNumberController,
                   keyboardType: TextInputType.phone,
                   onFieldSubmitted: (String value) {},
                   onChanged: (String value) {},
                   decoration: InputDecoration(
-                    labelText: 'phone number',
+                    labelText: 'رقم الهاتف',
                     prefixIcon: const Icon(
                       Icons.phone,
                     ),
@@ -153,13 +192,13 @@ class _SignUpState extends State<SignUp> {
                   ),
                   validator: (String? value) {
                     if (value!.isEmpty) {
-                      return 'please enter your phone number';
+                      return 'الرجاء ادخال رقم الهاتف';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(
-                  height: 15.0,
+                   height: 10.0,
                 ),
                 TextFormField(
                   controller: addressController,
@@ -170,27 +209,27 @@ class _SignUpState extends State<SignUp> {
                     prefixIcon: const Icon(
                       Icons.location_on
                     ),
-                    labelText: 'your address',
+                    labelText: 'العنوان',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(15.0),
                     ),
                   ),
                   validator: (String? value) {
                     if (value!.isEmpty) {
-                      return 'please enter your address';
+                      return 'الرجاء ادخال العنوان';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(
-                  height: 15.0,
+                  height: 10.0,
                 ),
                 TextFormField(
                   controller: ageController,
                   keyboardType: TextInputType.number,
                   onTap: () => _selectDate(context),
                   decoration: InputDecoration(
-                    labelText: 'your age',
+                    labelText: 'تاريخ الميلاد',
                     prefixIcon: const Icon(
                       Icons.date_range,
                     ),
@@ -200,14 +239,15 @@ class _SignUpState extends State<SignUp> {
                   ),
                   validator: (String? value) {
                     if (value!.isEmpty) {
-                      return 'please enter your age';
+                      return 'الرجاء ادخال تاريخ الميلاد';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(
-                  height: 15.0,
+                  height: 10.0,
                 ),
+
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     primary: const Color(0xff66CA98),
@@ -215,6 +255,7 @@ class _SignUpState extends State<SignUp> {
                   ),
                   onPressed: (){
                     if(formKey.currentState!.validate() ){
+
                       _data = [
                         firstNameController.text,
                         secondNameController.text,
@@ -222,19 +263,19 @@ class _SignUpState extends State<SignUp> {
                         phoneNumberController.text,
                         addressController.text,
                         ageController.text,
+                        user == 'patient' ? 'patient' : specialtyController.text
                       ];
+
+                      Navigator.pushNamed(context, '/signup2',arguments: _data );
                     }
-                    Navigator.pushNamed(context, '/signup2',arguments: _data );
+
                   },
                   child:const Text(
-                  'Continue',
+                  'التالي',
                   style: TextStyle(
                     color: Colors.white,
                   ),
                 ),),
-                  const SizedBox(
-                  height: 10.0,
-                ),
               ],
             ),
           ),

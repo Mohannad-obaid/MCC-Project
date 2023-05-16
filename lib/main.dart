@@ -1,34 +1,35 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
+import 'package:palliative_care/Firebase/auth_firebase.dart';
 import 'package:palliative_care/ui/Authentication/LoginScreen.dart';
 import 'package:palliative_care/ui/Authentication/signUp_1.dart';
 import 'package:palliative_care/ui/Authentication/Who.dart';
-import 'package:palliative_care/ui/add_post.dart';
-import 'package:palliative_care/ui/categories/alternatvie_medicine.dart';
-import 'package:palliative_care/ui/categories/cancer.dart';
+import 'package:palliative_care/ui/post/add_post.dart';
+import 'package:palliative_care/ui/categories/addCategory.dart';
 import 'package:palliative_care/ui/categories/categories.dart';
 import 'package:palliative_care/ui/Chat/chat.dart';
-import 'package:palliative_care/ui/categories/heart.dart';
-import 'package:palliative_care/ui/categories/mentalHealth.dart';
-import 'package:palliative_care/ui/categories/pysical_health.dart';
-import 'package:palliative_care/ui/categories/sokari.dart';
-import 'package:palliative_care/ui/home.dart';
-import 'package:palliative_care/ui/listSetting.dart';
+import 'package:palliative_care/ui/categories/getPostwithID.dart';
+import 'package:palliative_care/ui/post/home.dart';
+import 'package:palliative_care/ui/post/singlePost_page.dart';
+import 'package:palliative_care/ui/setting/listSetting.dart';
 import 'package:palliative_care/ui/mainScreen.dart';
-import 'package:palliative_care/ui/notification.dart';
-import 'package:palliative_care/ui/profile.dart';
-import 'package:palliative_care/ui/settings.dart';
+import 'package:palliative_care/ui/setting/notification.dart';
+import 'package:palliative_care/ui/setting/profile.dart';
+import 'package:palliative_care/ui/setting/settings.dart';
 import 'package:palliative_care/ui/test.dart';
-
+import 'controller/sharedPreferences_Controller.dart';
 import 'firebase_options.dart';
 import 'ui/Authentication/signUp_2.dart';
+import 'ui/search/search_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await SpHelper.initSp();
   runApp(const MyApp());
 }
 
@@ -39,47 +40,42 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return  GetMaterialApp(
-        debugShowCheckedModeBanner: false,
-
+      debugShowCheckedModeBanner: false,
       title: 'Palliative Care',
       theme: ThemeData(
         useMaterial3: true,
         fontFamily: 'Lora',
         primaryColor: const Color(0xFF66CA98),
-        scaffoldBackgroundColor: const Color(0xFFE5E5E5),
-        canvasColor: const Color(0xFFE5E5E5),
+        secondaryHeaderColor: Colors.green.shade400,
       ),
-      themeMode: ThemeMode.system,
+      themeMode: ThemeMode.dark,
       textDirection: TextDirection.rtl,
 
+
       routes: {
-        '/who':(context) => Who(),
+        '/who':(context) => const Who(),
         '/login':(context) => LoginScreen(),
         '/signup':(context) => SignUp(),
         '/signup2':(context) => SignUp_2(),
         '/home':(context) => const HomeScreen(),
-       // '/profile':(context) => DoctorProfilePage(),
         '/chat':(context) => const ChatScreen(),
         '/notifications':(context) => NotificationScreen(),
-        '/categories':(context) => const Categories(),
+        '/categories':(context) =>  Categories(),
         '/add_post':(context) => const AddPost(),
         '/settings':(context) => const Settings(),
-        '/profile':(context) => const ProfilePage(name: 'Moaz',address: 'Gaza',email: 'MOAZ1111@gmail.com',phoneNumber: '05999999',specialty: 'IT'),
+        '/profile':(context) =>  ProfilePage(),
         '/list':(context) =>  listPage(),
-        '/':(context) => const MainScreen(),
+      //  '/':(context) => const MainScreen(),
         '/chatScreen':(context) => const ChatScreen(),
-        '/heartScreen':(context) => const HeartScreen(),
-        '/sokariScreen':(context) => const SokariScreen(),
-        '/pycsicalScreen':(context) => const PysicalHealth(),
-        '/alternativScreen':(context) => const AlternativeScreen(),
-        '/mentalScreen':(context) => const MentalHealth(),
-        '/cancerScreen':(context) => const CancerScreen(),
+        '/sokariScreen':(context) => const categoryIDScreen(),
         '/mainScreen':(context) => const MainScreen(),
         '/test':(context) =>  Test(),
+        '/addCategory':(context) =>  const AddCategory(),
+        '/search':(context) =>  const SearchPage(),
+        '/postDetails':(context) =>  const PostDetails(),
       },
+      initialRoute: FbAuthController().isLogin? '/mainScreen' : '/login',
 
-      initialRoute: '/mainScreen',
-      /*(name: 'Moaz',address: 'Gaza',email: 'MOAZ1111@gmail.com',phoneNumber: '05999999',specialty: 'IT')*/
     );
   }
 }

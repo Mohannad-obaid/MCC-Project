@@ -8,8 +8,9 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import '../controller/profileController.dart';
-import '../utils/helpers.dart';
+import 'package:palliative_care/controller/sharedPreferences_Controller.dart';
+import '../../controller/profileController.dart';
+import '../../utils/helpers.dart';
 
 
 class ProfilePage extends StatefulWidget {
@@ -28,14 +29,19 @@ class _ProfilePageState extends State<ProfilePage> with Helpers {
   String? _imageUrl;
   File? file;
 
+
+
   @override
   Widget build(BuildContext context) {
+
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
           'الصفحة الشخصية',
           style: GoogleFonts.aBeeZee(color: Colors.white),
         ),
+
         backgroundColor: Colors.green.shade400,
         centerTitle: true
          ,
@@ -106,12 +112,12 @@ class _ProfilePageState extends State<ProfilePage> with Helpers {
                   ),
                 ),
                 const SizedBox(height: 10),
-              controller.typeUser.value == true ?  Text(
-                  snapshot.data!['specialty'],
+               Text(
+                 SpHelper.getIsDoctor()! ? snapshot.data!['specialty'] : snapshot.data!['interest'],
                   style: const TextStyle(
                     fontSize: 16,
                   ),
-                ) : SizedBox(),
+                ) ,
                 const SizedBox(height: 20),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(

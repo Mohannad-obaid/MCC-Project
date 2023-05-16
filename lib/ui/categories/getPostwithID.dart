@@ -2,15 +2,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../controller/get_posts_controller.dart';
+import '../../controller/getPostWithCategory.dart';
 
-class SokariScreen extends StatefulWidget {
-  const SokariScreen({Key? key}) : super(key: key);
+class categoryIDScreen extends StatefulWidget {
+  const categoryIDScreen({Key? key}) : super(key: key);
 
   @override
-  State<SokariScreen> createState() => _SokariScreenState();
+  State<categoryIDScreen> createState() => _categoryIDScreenState();
 }
-class _SokariScreenState extends State<SokariScreen> {
+class _categoryIDScreenState extends State<categoryIDScreen> {
 
 
   @override
@@ -31,23 +31,23 @@ class _SokariScreenState extends State<SokariScreen> {
           padding: const EdgeInsets.all(8.0),
           child: StreamBuilder<QuerySnapshot>(
             stream: GetPostsController().getAllPosts(_data[0]),
-            builder: (context, snapshot) {
+            builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+              if (snapshot.hasError) {
+                return Text("Something went wrong");
+              }
+
+              if (!snapshot.hasData  ) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (snapshot.connectionState == ConnectionState.done) {
+
+                return const Center(child: CircularProgressIndicator());
+              }
               return ListView.builder(
                 itemCount: snapshot.data!.docs.length,
                 itemBuilder: (context, index) {
                   print(DateFormat.yMMMMEEEEd().add_jms().format(snapshot.data!.docs[index]['createdAt'].toDate()),);
-                  if (snapshot.hasError) {
-                    return const Text("Something went wrong");
-                  }
-
-                  if (!snapshot.hasData  ) {
-                    return const Text("Document does not exist");
-                  }
-
-                  if (snapshot.connectionState == ConnectionState.done) {
-
-                    return const Center(child: CircularProgressIndicator());
-                  }
                     return Column(
                       children: [
                         Padding(
@@ -59,7 +59,6 @@ class _SokariScreenState extends State<SokariScreen> {
                                 borderRadius: BorderRadius.circular(15)),
                             child: Row(
                               children: [
-
                                 Expanded(
                                   flex: 2,
                                   child: Padding(
@@ -115,7 +114,6 @@ class _SokariScreenState extends State<SokariScreen> {
                                 ),
                               ],
                             ),
-
                           ),
                         ),
                         const Divider(

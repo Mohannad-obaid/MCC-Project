@@ -8,7 +8,7 @@ class CheckAuth{
   Future<bool> checkActiveEmail(BuildContext context, {required UserCredential userCredential})async{
     if(userCredential.user!.emailVerified == false){
       userCredential.user!.sendEmailVerification();
-      showSnackBar(context: context, content:'Please activate the email',error:false);
+      showSnackBar(context: context, content:'الرجاء تفعيل الايميل',error:false);
       return false;
     }
 
@@ -18,34 +18,34 @@ class CheckAuth{
   void controllerErrorCode(BuildContext context,  FirebaseAuthException authException) {
     switch (authException.code) {
       case 'email-already-in-use':
-        showSnackBar(context: context, content:'Email already in use',error:true);
+        showSnackBar(context: context, content:'الايميل مستخدم ',error:true);
         break;
 
       case 'invalid-email':
-        showSnackBar(context: context, content:'Invalid Email',error:true);
+        showSnackBar(context: context, content:'ايميل غير صالح',error:true);
         break;
 
       case 'operation-not-allowed':
-        showSnackBar(context: context, content:'Operation not allowed',error:true);
+        showSnackBar(context: context, content:'حدث خطا الرجاء اثناء عملية التسجيل',error:true);
         break;
 
       case 'weak-password':
-        showSnackBar(context: context, content:'Weak password',error:true);
+        showSnackBar(context: context, content:'كلمة مرور ضعيفة',error:true);
         break;
 
       case 'user-not-found':
-        showSnackBar(context: context, content:'User not found',error:true);
+        showSnackBar(context: context, content:'لم يتم العثور على المستخدم',error:true);
         break;
       case 'wrong-password':
-        showSnackBar(context: context, content:'Wrong password',error:true);
+        showSnackBar(context: context, content:'كلمة المرور خطأ',error:true);
         break;
 
       case 'network-request-failed':
-         showSnackBar(context: context, content:'Network request failed',error:true);
+         showSnackBar(context: context, content:'الرجاء التاكد من الاتصال بالشبكة',error:true);
         break;
 
     default:
-      showSnackBar(context: context, content:'Error',error:true);
+      showSnackBar(context: context, content:'حدث خطا',error:true);
     //  break;
 
     }
@@ -56,6 +56,7 @@ class CheckAuth{
       SnackBar(
         content: Text(content),
         backgroundColor: error ? Colors.red : Colors.green,
+        duration: const Duration(seconds: 3),
       ),
     );
   }

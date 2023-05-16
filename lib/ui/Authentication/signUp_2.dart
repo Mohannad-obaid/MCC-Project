@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:palliative_care/Model/doctorModel.dart';
 import 'package:palliative_care/Model/userModel.dart';
 
 import '../../Firebase/auth_firebase.dart';
@@ -33,7 +34,6 @@ class _SignUp_2State extends State<SignUp_2> {
   @override
   Widget build(BuildContext context) {
     List<String>? _data2 = ModalRoute.of(context)!.settings.arguments as List<String>?;
-    print(_data2![0]);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.green.shade400,
@@ -47,7 +47,7 @@ class _SignUp_2State extends State<SignUp_2> {
               child: Column(
                 children: [
                   const Text(
-                    'Sign Up',
+                    'تسجيل حساب جديد',
                     style: TextStyle(
                       fontSize: 40.0,
                       fontWeight: FontWeight.bold,
@@ -61,7 +61,7 @@ class _SignUp_2State extends State<SignUp_2> {
                     onFieldSubmitted: (String value) {},
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
-                      labelText: 'Email Address',
+                      labelText: ' البريد الالكتروني',
                       prefixIcon: const Icon(
                         Icons.email,
                       ),
@@ -71,7 +71,7 @@ class _SignUp_2State extends State<SignUp_2> {
                     ),
                     validator: (String? value) {
                       if (value!.isEmpty ) {
-                        return 'please enter your email';
+                        return 'الرجاء ادخال البريد الالكتروني';
                       }
                       return null;
                     },
@@ -85,7 +85,7 @@ class _SignUp_2State extends State<SignUp_2> {
                     obscureText: _showPassword2,
                     onFieldSubmitted: (String value) {},
                     decoration: InputDecoration(
-                      labelText: 'Password',
+                      labelText: 'كلمة المرور',
                       prefixIcon:  const Icon( Icons.lock,),
 
                       suffixIcon: IconButton(
@@ -105,7 +105,7 @@ class _SignUp_2State extends State<SignUp_2> {
                     ),
                     validator: (String? value) {
                       if (value!.isEmpty && _confPassword.text.isEmpty && _confPassword.text == value ) {
-                        return 'please enter your password and confirm it';
+                        return 'كلمة المرور غير متطابقة';
                       }
                       return null;
                     },
@@ -119,7 +119,7 @@ class _SignUp_2State extends State<SignUp_2> {
                     obscureText: _showPassword,
                     onFieldSubmitted: (String value) {},
                     decoration: InputDecoration(
-                      labelText: 'Confirm password',
+                      labelText: 'تاكيد كلمة المرور',
                       prefixIcon: const Icon(
                         Icons.lock,
                       ),
@@ -140,9 +140,9 @@ class _SignUp_2State extends State<SignUp_2> {
                     ),
                     validator: (String? value) {
                       if (value!.isEmpty ) {
-                        return 'please enter your password and confirm it';
+                        return 'الرجاء ادخال كلمة المرور';
                       }else if(value != _passwordController.text){
-                        return 'password not match';
+                        return 'كلمة المرور غير متطابقة';
                       }
                       return null;
                     },
@@ -163,18 +163,39 @@ class _SignUp_2State extends State<SignUp_2> {
                     bool isDon =    await  FbAuthController().createAccount(context, email: _emailController.text, password: _passwordController.text);
 
                     if (isDon){
-                     //  FbAuthController().getUid;
-                       print(FbAuthController().getUid);
-                      UserModel userModel = UserModel(id: FbAuthController().getUid, name: '${_data2[0]} ${_data2[1]} ${_data2[2]}', email: _emailController.text, image: 'null', phone: _data2[3], address: _data2[4], birthDate:_data2[5] ,interest: "programming",notification: true );
-
-                      await FbAuthController().saveUser(userModel);
+                      if(_data2![6] == 'patient') {
+                        UserModel userModel = UserModel(
+                            id: FbAuthController().getUid,
+                            name: '${_data2![0]} ${_data2[1]} ${_data2[2]}',
+                            email: _emailController.text,
+                            image: 'null',
+                            phone: _data2[3],
+                            address: _data2[4],
+                            birthDate: _data2[5],
+                            interest: "programming",
+                            notification: true);
+                        await FbAuthController().saveUser(userModel);
+                      }else{
+                        DoctorModel doctorModel = DoctorModel(
+                          id: FbAuthController().getUid,
+                          name: '${_data2![0]} ${_data2[1]} ${_data2[2]}',
+                          email: _emailController.text,
+                          image: 'null',
+                          phoneNumber: _data2[3],
+                          address: _data2[4],
+                          birthDate: _data2[5],
+                          specialty: _data2[6],
+                        );
+                        await FbAuthController().saveDoctor(doctorModel);
+                      }
+                      Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
 
                     }
                       }
 
                     },
                     child:const Text(
-                      'Continue',
+                      'تسجيل',
                       style: TextStyle(
                         color: Colors.white,
                       ),
